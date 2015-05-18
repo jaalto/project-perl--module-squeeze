@@ -1,30 +1,22 @@
 # Squeez.pm - Perl package to shorten text to minimum syllables
-# $Id: Squeeze.pm,v 1.9 2006-07-04 20:10:37 jaalto Exp $
-#
-# This file is maintaned by using Emacs (The Editor) and add-on
-# packages. See http://tiny-tools.sourceforge.net/
-#
-#   tinytab.el -- indent mode
-#   tinyperl   -- Perl helper mode (pod docs, stubs etc)
 #
 # To generate HTML
 #
-#   $ perl -e 'use Pod::Html qw(pod2html); pod2html shift @ARGV' FILE.pm
+#   $ perl -e 'use Pod::Html qw(pod2html); pod2html shift @ARGV' Squeeze.pm
 
 package Lingua::EN::Squeeze;
 
-    my $LIB = "Lingua::EN::Squeeze";        # For debug printing
+my $LIB = "Lingua::EN::Squeeze";        # For debug output
 
-    use vars qw ( $VERSION );
+use vars qw($VERSION);
 
-    #   This is for use of Makefile.PL and ExtUtils::MakeMaker
-    #   So that it puts the tardist number in format YYYY.MMDD
-    #   The REAL version number is defined later
+#   This is for use of Makefile.PL and ExtUtils::MakeMaker
+#   So that it puts the tardist number in format YYYY.MMDD
+#
+#   The following variable is updated by Emacs package tinyperl.el
+#   whenever this file is saved.
 
-    #   The following variable is updated by Emacs setup tinyperl.el
-    #   whenever this file is saved
-
-    $VERSION = '2006.0704';
+$VERSION = '2015.0518.0351';
 
 # ***********************************************************************
 #
@@ -38,14 +30,10 @@ package Lingua::EN::Squeeze;
 
 Squeeze.pm - Shorten text to minimum syllables by using hash table lookup and vowel deletion
 
-=head1 REVISION
-
-$Id: Squeeze.pm,v 1.9 2006-07-04 20:10:37 jaalto Exp $
-
 =head1 SYNOPSIS
 
     use Squeeze.pm;         # import only function
-    use Squeeze qw( :ALL ); # import all functions and variables
+    use Squeeze qw(:ALL);   # import all functions and variables
     use English;            # to use readable variable names
 
     while (<>)
@@ -72,12 +60,12 @@ SqueezeText() for maximum compression, because optimizations have been
 designed mostly for uncapitalized letters.
 
 C<Warning: Each line is processed multiple times, so prepare for slow
-conversion time>
+conversion time>.
 
 You can use this module e.g. to preprocess text before it is sent to
 electronic media that has some maximum text size limit. For example pagers
 have an arbitrary text size limit, typically around 200 characters, which
-you want to fill as much as possible. Alternatively you may have GSM
+you want to fill as much as possible. Alternatively you may have
 cellular phone which is capable of receiving Short Messages (SMS), whose
 message size limit is 160 characters. For demonstration of this module's
 SqueezeText() function, this paragraph's conversion result is presented
@@ -229,7 +217,7 @@ conversion function.
         print SqueezeText $ARG;
     }
 
-Similarly you can redefine the multi word translation table by supplying
+Similarly you can redefine a multi word translation table by supplying
 another hash reference in call to SqueezeHashSet(). To kill more text
 immediately in addition to default, just concatenate regexps to variable
 I<$SQZ_ZAP_REGEXP>
@@ -238,8 +226,9 @@ I<$SQZ_ZAP_REGEXP>
 
 There may be lot of false conversions and if you think that some word
 squeezing went too far, please 1) turn on the debug 2) send you example
-text 3) debug log log to the maintainer. To see how the conversion goes
-e.g. for word I<Messages>:
+text 3) send debug log log to the maintainer. 
+
+To see how the conversion goes e.g. for word I<Messages>:
 
     use English;
     use Lingua::EN:Squeeze;
@@ -283,8 +272,28 @@ after C<%SQZ_WXLATE_MULTI_HASH> has been used.
 
 Aggressive I<Single Word> conversions like: without => w/o are applied last.
 
-=cut
+=head1 COPYRIGHT
 
+Copyright (C) Jari Aalto 2007-2009, 2015 Jari Aalto <jari.aalto@cante.net>
+
+The master repository is at:
+
+    https://github.com/jaalto/project-perl--module-squeeze
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details. See
+<http://www.gnu.org/licenses/>.
+
+=cut
 
 # **********************************************************************
 #
@@ -295,8 +304,8 @@ Aggressive I<Single Word> conversions like: without => w/o are applied last.
 use 5.003;
 use strict;
 
-# Somehow doesn't work in Perl 5.004 ?
-# use autouse 'Carp' => qw( croak carp cluck confess );
+# Somehow the following doesn't work in Perl 5.004?
+#    use autouse 'Carp' => qw(croak carp cluck confess);
 
 use Carp;
 use SelfLoader;
@@ -326,24 +335,6 @@ BEGIN
         %SQZ_WXLATE_MULTI_HASH
     );
 
-    $FILE_ID =
-        q$Id: Squeeze.pm,v 1.9 2006-07-04 20:10:37 jaalto Exp $;
-
-    #   Here woudl be the real version number, which you use like this:
-    #
-    #       use Squeeze 1.34;
-    #
-    #   Derive version number, the index is 1 if matches
-    #   Clearcase @@ in file_id string. index is 2 if this was
-    #   RCS identifier.
-
-    my $ver = (split ' ', $FILE_ID)[$FILE_ID =~ /@@/ ? 1 : 2];
-
-    #   Commented out. Better to use the date based version number,
-    #   because it is more informative
-    #
-    #   $VERSION = sprintf "%d.%02d",  $ver =~ /(\d+)\.(\d+)/;
-
     # ...................................................... &export ...
 
     use Exporter ();
@@ -371,7 +362,7 @@ BEGIN
 
     %EXPORT_TAGS =
     (
-        ALL => [ @EXPORT_OK, @EXPORT ]
+        ALL => [@EXPORT_OK, @EXPORT]
     );
 }
 
@@ -828,12 +819,12 @@ sub SqueezeText ($)
 
     # ........................................................ &kill ...
 
-    if ( /^\s*[^\s]{30,}/ )     # Any continuous block. UU line ?
+    if (/^\s*[^\s]{30,}/)     # Any continuous block. UU line ?
     {
         return "";
     }
 
-    if ( /^[A-Z][^\s]+: / )     # Email headers "From:"
+    if (/^[A-Z][^\s]+: /)     # Email headers "From:"
     {
         return "";
     }
@@ -844,49 +835,49 @@ sub SqueezeText ($)
 
     # ........................................................ words ...
 
-        #   Kill URLs
+    #   Kill URLs
 
     s{\b\S+://\S+\b}{URL}ig;
 
-        #   Delete markup +this+ *emphasised* *strong* `text'
+    #   Delete markup +this+ *emphasised* *strong* `text'
 
     s/\b[_*+`'](\S+)[_*+`']\b/$1/ig;
 
-        #  DON'T REMOVE. This comment fixes Emacs font-lock problem: s///
-        #  From above statement.
+    #  DON'T REMOVE. This comment fixes Emacs font-lock problem: s///
+    #  From above statement.
 
     $debug and warn $tab,"[markup]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #   Delete 3rd person voice
-        #   expires => expire
-        #
-        #   But do not touch 'was'
+    #   Delete 3rd person voice
+    #   expires => expire
+    #
+    #   But do not touch 'was'
 
     s/\b($vow\S+$vow)s\b/$1/ogi;
 
-        #   says    => say
+    #   says    => say
 
     s/\b($nvow+\S$vow+)s\b/$1/ogi;
 
-        #   vowel .. nvowel + 2
-        #   interests => interest
+    #   vowel .. nvowel + 2
+    #   interests => interest
 
     s/\b($vow\S+$nvow)s\b/$1/ogi;
     $debug and warn $tab,"[3voice]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #   Delete plurals: non-vowel .. non-vowel + s
-        #   problems  => problem
+    #   Delete plurals: non-vowel .. non-vowel + s
+    #   problems  => problem
 
     s/\b($nvow\S+$nvow)s\b/$1/ogi;
     $debug and warn $tab,"[plural]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #   Delete plurals: non-vowel .. vowel + s
-        #   messages => message
+    #   Delete plurals: non-vowel .. vowel + s
+    #   messages => message
 
     s/\b($nvow\S+$vow)s\b/$1/ogi;
     $debug and warn $tab,"[plural2]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #   zap
+    #   zap
 
     s/$SQZ_ZAP_REGEXP//oig;
     $debug and warn $tab,"[zap]\t\t[$ARG]" if $orig =~ /$debugRegexp/;
@@ -895,17 +886,17 @@ sub SqueezeText ($)
 
     my ($from, $to);
 
-    for $from ( keys %multiWordXlate  )
+    for $from (keys %multiWordXlate)
     {
-        $to = $multiWordXlate{ $from };
+        $to = $multiWordXlate{$from};
         s/\b$from\b/$to/ig;
     }
 
     $debug and warn $tab,"[xlate-multi]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-    for $from ( keys %wordXlate )
+    for $from (keys %wordXlate)
     {
-        $to = $wordXlate{ $from };
+        $to = $wordXlate{$from};
         s/\b$from\b/$to/ig;
     }
 
@@ -913,37 +904,37 @@ sub SqueezeText ($)
 
     # ...................................................... &suffix ...
 
-        #   From Imperfect to active voice
-        #   converted => convert
+    #   From Imperfect to active voice
+    #   converted => convert
 
     s/\b($nvow\S\S+)ed\b/$1/igo;
 
-        #   shorten words with -cally suffix => cly
+    #   shorten words with -cally suffix => cly
 
     s/cally\b/cly/g;
 
-        #   shorten comparision: bigger
-        #   We can't deduce quicker --> quick, becasue further on
-        #   the word would be converted quick --> qck. Not good.
+    #   shorten comparision: bigger
+    #   We can't deduce quicker --> quick, becasue further on
+    #   the word would be converted quick --> qck. Not good.
 
     s/\b($nvow+\S+e)r\b/$1/ogi;
     $debug and warn $tab,"[comparis]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #       leaning --> leang
+    #       leaning --> leang
 
     s/ing\b/ng/ig;
     s/io\b/o/ig;
 
-        #       uniqe       --> uniq
+    #       uniqe       --> uniq
 
     $debug and warn $tab,"[-io]\t\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #   Watch out "due to"
+    #   Watch out "due to"
 
     s/(\S\S)ue(ness?)?\b/$1/ig;
 
-        #       authenticate -> authentic
-        #       Watch out 'state' !
+    #       authenticate -> authentic
+    #       Watch out 'state' !
 
     s/(\S\S\S)ate\b/$1/ig;
 
@@ -953,59 +944,59 @@ sub SqueezeText ($)
 
     $debug and warn $tab,"[0]\t\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #       Vocal only at the beginning and end ==> drop last
-        #       info    => inf
-        #
-        #       Don't touch away
+    #       Vocal only at the beginning and end ==> drop last
+    #       info    => inf
+    #
+    #       Don't touch away
 
     s/\b($vow+$nvow$nvow)$vow+\b/$1/ogi;
     $debug and warn $tab,"[vowel-last]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #       only one vowel in string
-        #       help ==> hlp
-        #       stat            BUT can't deduce to stt
+    #       only one vowel in string
+    #       help ==> hlp
+    #       stat            BUT can't deduce to stt
 
     s/\b($nvow)$vow($nvow$nvow)\b/$1$2/ogi;
     $debug and warn $tab,"[vowel-one]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #       asked --> skd
+    #       asked --> skd
 
     s/\b($vow+$nvow$nvow)$vow($nvow)\b/$1$2/ogi;
     $debug and warn $tab,"[vowel-two]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #       Delete two vowels; through --> thrgh
-        #       Don't touch words ending to -ly: diffrently, difly
+    #       Delete two vowels; through --> thrgh
+    #       Don't touch words ending to -ly: diffrently, difly
 
     s/\b($nvow+)$vow$vow($nvow$nvow+)(?!y)\b/$1$2/ogi;
     $debug and warn $tab,"[vowel-many]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #       type => typ
+    #       type => typ
 
     s/\b($nvow+$vow$nvow+(?!y))$vow\b/$1/ogi;
     $debug and warn $tab,"[vowel-end]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #       many vowels, remove first two
-        #       detected    => dtcted
-        #       service     => srvce
+    #       many vowels, remove first two
+    #       detected    => dtcted
+    #       service     => srvce
 
     s/\b(\S+)$vow+($nvow+)$vow+(\S*$vow\S*)\b/$1$2$3/ogi;
     $debug and warn $tab,"[vowel-more]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #       Two consequent vowels
-        #       obtain      => obtan
+    #       Two consequent vowels
+    #       obtain      => obtan
 
     s/\b(\S*$vow$nvow+$vow)$vow(\S+)\b/$1$2/ogi;
     $debug and warn $tab,"[vowel-22more]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #       Two non-vowels at the end
-        #       contact     => contac
+    #       Two non-vowels at the end
+    #       contact     => contac
 
-#    s/($nvow)$nvow\b/$1/ogi;
+#   s/($nvow)$nvow\b/$1/ogi;
 #   $debug and warn $tab,"[non-vowel-2end][$ARG]" if $orig =~ /$debugRegexp/;
 
-        #       Two same vowels
-        #       took        => tok
-        #       keep        => kep
+    #       Two same vowels
+    #       took        => tok
+    #       keep        => kep
 
     s/\b(\S+)($vow)\2(\S+)\b/$1$2$3/ogi;
     $debug and warn $tab,"[vowel-2same]\t[$ARG]" if $orig =~ /$debugRegexp/;
@@ -1018,16 +1009,16 @@ sub SqueezeText ($)
 
     s/u?[ae]nc[ye]\b//ig;
 
-        #       management      => manag
-        #       establishement  => establish
+    #       management      => manag
+    #       establishement  => establish
 
     s/ement\b/nt/ig;
 
-        #       allocation => allocan
+    #       allocation => allocan
 
     s/[a-z]ion\b/n/ig;
 
-        #       hesitate --> hesit
+    #       hesitate --> hesit
 
     s/tate\b/t/ig;
 
@@ -1042,48 +1033,48 @@ sub SqueezeText ($)
 
     s/([0-9])(st|nd|th)/$1/ig;  # get rid of 1st 2nd ...
 
-        # Shorted full month names
+    # Shorted full month names
 
     s/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]+\b/$1/ig;
 
-        #       "This is the end. And new sentence."
-        #       We can leave out the period.
+    #       "This is the end. And new sentence."
+    #       We can leave out the period.
 
     s/\.\s+([A-Z])/$1/g;
 
-        #       Any line starting that does not start with aphanumeric can be
-        #       deleted. Like
-        #
-        #           Well, this is
-        #
-        #       is previously shortened to ", this is" and the leading is now
-        #       shortened to
-        #
-        #           this is
+    #       Any line starting that does not start with aphanumeric can be
+    #       deleted. Like
+    #
+    #           Well, this is
+    #
+    #       is previously shortened to ", this is" and the leading is now
+    #       shortened to
+    #
+    #           this is
 
     s/^\s*[.,;:]\s*//;
     s/\s*\W+$/\n/;      # ending similarly.
 
     $debug and warn $tab,"[shorthand]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #       we don't need these,
+    #       we don't need these,
 
     s/[!#\$'\"*|\\^]//g;                # dummy "' to restore Emacs font-lock
 
-        #       carefully => carefuly
-        #       Don't touch 'all'
+    #       carefully => carefuly
+    #       Don't touch 'all'
 
     s/([flkpsy])\1\B/$1/ig;             # Any double char to one char
 
     $debug and warn $tab,"[double]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #   Any double chars at the END of work
+    #   Any double chars at the END of work
 
     s/\b(\S*$vow\S*)([^0-9])\2\b/$1$2/i;
 
     $debug and warn $tab,"[double-end]\t[$ARG]" if $orig =~ /$debugRegexp/;
 
-        #       short => shor
+    #       short => shor
 
     s/\rt\b/r/ig;               # Any double char to one char
 
@@ -1101,7 +1092,7 @@ sub SqueezeText ($)
 
 #   This section is automatically updated by Emacs function
 #   tinyperl.el::tiperl-selfstubber-stubs. Do not touch the BEGIN END tokens.
-#   See http://tiny-tools.sourceforge.net/
+#   See https://github.com/jaalto/project--emacs-tiny-tools
 
 # BEGIN: Devel::SelfStubber
 
